@@ -11,7 +11,7 @@ export const updateWishlist = async (
   const {
     clients: { md },
   } = ctx
-
+  console.log('entrou')
   const { email } = await auth(ctx)
 
   const { wishlist } = args || {}
@@ -20,10 +20,20 @@ export const updateWishlist = async (
     throw new Error('An id must be provided')
   }
 
+  const skuIds = wishlist.products.map((prod) => prod.ID).join(',')
+
   const { email: emailUser, id, wishlistType, isPublic, products } =
     (await md.getWishlist(wishlist.id)) || {}
 
   const existWishlist = id
+
+  const skuResponse = await ctx.clients.product.getProduct(skuIds)
+
+  console.log(skuIds)
+
+  const skusLink = skuResponse.map((sku: any) => sku.link)
+
+  console.log(skusLink)
 
   const data = wishlist?.products.map((prod) => {
     const d = products?.find((pro) => pro.ID === prod.ID)
@@ -34,6 +44,7 @@ export const updateWishlist = async (
         ? prod.quantityProduct
         : d?.quantityProduct ?? 1,
       notes: prod.notes ? prod.notes : d?.notes,
+      linkProduct: 'teste',
     }
   })
 
